@@ -61,25 +61,11 @@ public final class AlleleFractionState extends ParameterizedState<AlleleFraction
         return get(AlleleFractionParameter.MINOR_ALLELE_FRACTIONS, MinorFractions.class).get(segment);
     }
 
-    //copy the state with reference to the SAME minorFractions list data (to save copying) but different value of
-    //one of the scalar parameters
-    //This is dangerous and minorFractions should not be modified in the copy.
-    //
-    //The purpose of this is to make an MCMC proposal state for calculating a likelihood with one of the scalar parameters
-    //modified (these are unboxed in the getters, so changing these in the copy is safe)
-    protected AlleleFractionState shallowCopyWithProposedMeanBias(final double proposedMeanBias) {
-        return new AlleleFractionState(proposedMeanBias, biasVariance(), outlierProbability(), minorFractions());
+    public AllelicBiasParameters getParameters() {
+        return new AllelicBiasParameters(meanBias(), biasVariance(), outlierProbability());
     }
 
-    protected AlleleFractionState shallowCopyWithProposedBiasVariance(final double proposedBiasVariance) {
-        return new AlleleFractionState(meanBias(), proposedBiasVariance, outlierProbability(), minorFractions());
-    }
-
-    protected AlleleFractionState shallowCopyWithProposedOutlierProbability(final double proposedOutlierProbability) {
-        return new AlleleFractionState(meanBias(), biasVariance(), proposedOutlierProbability, minorFractions());
-    }
-
-    private MinorFractions minorFractions() {
+    public MinorFractions minorFractions() {
         return get(AlleleFractionParameter.MINOR_ALLELE_FRACTIONS, MinorFractions.class);
     }
 }
