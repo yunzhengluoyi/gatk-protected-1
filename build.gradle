@@ -125,6 +125,7 @@ dependencies {
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     compile 'org.broadinstitute:gatk:4.alpha.1-104-g213595d-20160606.150121-2'
     compile 'com.opencsv:opencsv:3.4'
+    compile 'com.github.wendykierp:JTransforms:3.1'
 
     // HDF5 and HDF-Java jar files
     if (isMacOsX) {

@@ -1,10 +1,9 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
 /**
- * Workspace for target coverage of a sample along with helper methods
+ * For storing non-persistent (computed) sample target coverage quantities.
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
-
 public final class SampleTargetCoverageWorkspace {
 }
