@@ -5,6 +5,8 @@ import org.broadinstitute.hellbender.utils.param.ParamUtils;
 /**
  * Parameters for {@link TargetCoverageEMModeler}.
  *
+ * TODO fourier factors
+ *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 public class TargetCoverageEMParams {
@@ -30,9 +32,9 @@ public class TargetCoverageEMParams {
     /* M-step error tolerance in maximizing w.r.t. W (if Fourier regularization is enabled) */
     private double wTol = 1e-6;
 
-    /**
-     * setter and getter methods
-     */
+    /********************************
+     * accessor and mutator methods *
+     ********************************/
 
     public TargetCoverageEMParams setMaxEMIterations(final int maxEMIterations) {
         this.maxEMIterations = ParamUtils.isPositive(maxEMIterations, "Maximum EM iterations must be positive.");
