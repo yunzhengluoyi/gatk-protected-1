@@ -8,4 +8,5 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
  */
 
 public final class TargetCoverageEMModeler {
+
 }

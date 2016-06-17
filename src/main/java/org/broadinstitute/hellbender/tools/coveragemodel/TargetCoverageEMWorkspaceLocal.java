@@ -1,6 +1,10 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
+
+import java.util.List;
 
 /**
  * This class implements a local memory version of {@link TargetCoverageEMWorkspace}
@@ -9,6 +13,44 @@ import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
  */
 
 public final class TargetCoverageEMWorkspaceLocal extends TargetCoverageEMWorkspace {
+
+    /* baseline ploidy; the ploidy of each sample is measured w.r.t. this value */
+    private static final int BASELINE_PLOIDY = 2;
+
+    /* baseline germline copy ratio; the germline copy ratio of each sample is measured w.r.t. this value */
+    private static final int BASELINE_GERMLINE_COPY_RATIO = 1;
+
+    /**
+     * persistent members
+     */
+
+    /* $n_{st}$ */
+    private final RealMatrix sampleLogReadCounts;
+
+    /* $\log(P_{st})$ */
+    private final RealMatrix sampleLogPloidies;
+
+    /* M_{st} */
+    private final RealMatrix sampleMasks;
+
+    /* $\Sigma$ */
+    private final RealMatrix sampleStatisticalVariances;
+
+    /* $d_s$ */
+    private final RealMatrix sampleMeanReadDepths;
+
+    /**
+     * mutable members
+     */
+
+    /* m_{st} */
+    private final RealMatrix sampleBiases;
+
+    /* $\Psi_t + \Sigma_{st} */
+    private final RealMatrix sampleTotalVariances;
+
+    /* M_{st}/(\Psi_t + \Sigma_{st}) */
+    private final RealMatrix sampleMaskedInverseTotalVariances;
 
     /**
      * Constructor
@@ -29,6 +71,16 @@ public final class TargetCoverageEMWorkspaceLocal extends TargetCoverageEMWorksp
     protected void parseReadCountCollection(final ReadCountCollection readCountCollection) {
         /* TODO */
     }
+
+    /**
+     * Estimate the mean read depth of each sample
+     */
+    public void estimateMeanReadDepths() {
+        /* TODO */
+    }
+
+
+
 
     /**
      * Update G for all samples
