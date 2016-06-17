@@ -5,7 +5,7 @@ import org.apache.commons.math3.linear.RealLinearOperator;
 import org.apache.commons.math3.linear.RealVector;
 
 /**
- * Preconditioner for iterative solution of the E step equation for W in {@link TargetCoverageEM}.
+ * Preconditioner for iterative solution of the E step equation for W in {@link TargetCoverageEMModeler}.
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */

@@ -7,5 +7,5 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 
-public final class TargetCoverageEM {
+public final class TargetCoverageEMModeler {
 }

@@ -7,6 +7,8 @@ import org.apache.commons.math3.linear.RealVector;
 import org.broadinstitute.hellbender.utils.param.ParamUtils;
 import org.jtransforms.fft.DoubleFFT_1D;
 
+import java.util.stream.IntStream;
+
 /**
  * A a subclass of {@link RealLinearOperator} that defines the action of a real circulant
  * matrix operator $F(x,x') = F(x-x')$ by providing the DFT components of $F(x)$
@@ -59,15 +61,15 @@ public final class FourierRealLinearOperator extends RealLinearOperator {
         /* perform real forward FFT */
         double[] xDoubleArray = x.toArray();
         fftFactory.realForward(xDoubleArray);
-        for (int k=1; k<dimension/2; k++) {
-            xDoubleArray[2*k] *= fourierFactors[k];
-            xDoubleArray[2*k+1] *= fourierFactors[k];
-        }
+        /* apply filter */
+        IntStream.range(1, dimension/2).forEach(k -> xDoubleArray[2*k] *= fourierFactors[k]);
+        IntStream.range(1, dimension/2).forEach(k -> xDoubleArray[2*k+1] *= fourierFactors[k]);
         xDoubleArray[0] *= fourierFactors[0];
         xDoubleArray[1] *= fourierFactors[dimension/2];
         if (dimension % 2 == 1) {
             xDoubleArray[dimension-1] *= fourierFactors[(dimension-1)/2];
         }
+        /* transform to real space */
         fftFactory.realInverse(xDoubleArray, true);
         return new ArrayRealVector(xDoubleArray);
     }
