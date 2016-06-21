@@ -3,7 +3,7 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
 
 /**
- * This abstract class provides the basic workspace structure for {@link TargetCoverageEMModeler},
+ * This abstract class provides the basic workspace structure for {@link TargetCoverageEMAlgorithm},
  * Explicit implementations may use local or distributed memory allocation and computation.
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
@@ -11,72 +11,35 @@ import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
 
 public abstract class TargetCoverageEMWorkspace {
 
-    protected final TargetCoverageModel model;
+    protected final int numSamples, numTargets;
+    protected final TargetCoverageEMParams params;
 
     /**
-     * Constructor
-     * @param readCountCollection Non-null {@link ReadCountCollection} of the samples
-     * @param model Non-null {@link TargetCoverageModel} to be learned
+     * Basic constructor -- the constructer of classes that extend this class must take care of
+     * parsing the reads and initializing the relevant containers.
+     *
+     * @param readCounts not {@code null} instance of {@link ReadCountCollection}
+     * @param params not {@code null} instance of {@link TargetCoverageEMParams}
      */
-    protected TargetCoverageEMWorkspace(final ReadCountCollection readCountCollection,
-                                        final TargetCoverageModel model) {
-        if (readCountCollection == null) {
+    protected TargetCoverageEMWorkspace(final ReadCountCollection readCounts,
+                                        final TargetCoverageEMParams params) {
+        if (readCounts == null) {
             throw new IllegalArgumentException("The provided read count collection can not be null.");
         } else {
-            parseReadCountCollection(readCountCollection);
+            numSamples = readCounts.columnNames().size();
+            numTargets = readCounts.targets().size();
         }
-        if (model == null) {
-            throw new IllegalArgumentException("The provided target coverage model can not be null.");
+        if (params == null) {
+            throw new IllegalArgumentException("The provided target coverage EM params can not be null.");
         } else {
-            this.model = model;
+            this.params = params;
         }
     }
 
-    /**
-     * Parse the {@link ReadCountCollection} of the samples and create relevant persistent caches
-     * @param readCountCollection The {@link ReadCountCollection} of the samples
-     */
-    protected abstract void parseReadCountCollection(final ReadCountCollection readCountCollection);
+    public int getNumSamples() { return numSamples; }
 
-    /**
-     * Update G for all samples
-     */
-    public abstract void updateG();
+    public int getNumTargets() { return numTargets; }
 
-    /**
-     * Update E[z] for all samples
-     */
-    public abstract void updateZPosterior();
-
-    /**
-     * Update E[z z^T] for all samples
-     */
-    public abstract void updateZZPosterior();
-
-    /**
-     * M-step -- Update mean bias vector "m"
-     */
-    public abstract void updateMeanBias();
-
-    /**
-     * M-step -- Update B (auxiliary)
-     */
-    public abstract void updateB();
-
-    /**
-     * M-step -- Update Psi
-     */
-    public abstract void updatePsi();
-
-    /**
-     * M-step -- Update W
-     */
-    public abstract void updateW();
-
-    /**
-     * Calcaulte the log likelihood
-     * @return log likelihood
-     */
-    public abstract double getLogLikelihood();
+    public TargetCoverageEMParams getTargetCoverageEMParams() { return params; }
 
 }

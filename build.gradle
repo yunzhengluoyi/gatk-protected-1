@@ -25,6 +25,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.internal.os.OperatingSystem
 
 def isMacOsX = OperatingSystem.current().macOsX
+def isLinux = OperatingSystem.current().linux
+def isWindows = OperatingSystem.current().windows
+
 def customJarPath = hasProperty("custom.jar.dir") ? property("custom.jar.dir") : null;
 
 repositories {
@@ -121,11 +124,24 @@ installDist.dependsOn extractIntelDeflater
 build.dependsOn installDist
 check.dependsOn installDist
 
+//def libnd4jOS = null
+//if (isMacOsX) {
+//    libnd4jOS = 'macosx'
+//} else if (isWindows) {
+//    libnd4jOS = 'windows-x86_64'
+//} else if (isLinux) {
+//    libnd4jOS = 'linux-x86_84'
+//} else {
+//    throw new Exception('Unknown OS. ND4J will be unable to find platform-specific binaries and thus unable to run.')
+//}
+
 dependencies {
     compile files("${System.properties['java.home']}/../lib/tools.jar")
     compile 'org.broadinstitute:gatk:4.alpha.1-104-g213595d-20160606.150121-2'
     compile 'com.opencsv:opencsv:3.4'
     compile 'com.github.wendykierp:JTransforms:3.1'
+    compile 'org.nd4j:nd4j-native:0.4-rc3.10'
+    compile 'org.nd4j:nd4j-native:0.4-rc3.10:macosx-x86_64'
 
     // HDF5 and HDF-Java jar files
     if (isMacOsX) {

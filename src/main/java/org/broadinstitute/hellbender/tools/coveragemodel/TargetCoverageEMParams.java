@@ -3,7 +3,7 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
 import org.broadinstitute.hellbender.utils.param.ParamUtils;
 
 /**
- * Parameters for {@link TargetCoverageEMModeler}.
+ * Parameters for {@link TargetCoverageEMAlgorithm}.
  *
  * TODO fourier factors
  *
@@ -13,6 +13,9 @@ public class TargetCoverageEMParams {
 
     /* maximum number of EM iterations */
     private int maxEMIterations = 50;
+
+    /* dimension of the latent space */
+    private int numLatents = 10;
 
     /* stopping criterion w.r.t. change in the model log likelihood */
     private double logLikelihoodTol = 1e-4;
@@ -42,6 +45,13 @@ public class TargetCoverageEMParams {
     }
 
     public int getMaxEMIterations() { return maxEMIterations; }
+
+    public TargetCoverageEMParams setNumLatents(final int numLatents) {
+        this.numLatents = ParamUtils.isPositive(numLatents, "Number of latent variables must be positive.");
+        return this;
+    }
+
+    public int getNumLatents() { return numLatents; }
 
     public TargetCoverageEMParams setLogLikelihoodTolerance(final double tol) {
         logLikelihoodTol = ParamUtils.isPositive(tol, "The required tolerance on log likelihood " +
