@@ -56,7 +56,7 @@ public class FourierLinearOperatorNd4jUnitTest extends BaseTest {
     public void performTest(final int dim, final double[] fourierFacts, final double[] x, final double[] y) {
         FourierLinearOperatorNd4j linOp = new FourierLinearOperatorNd4j(dim, fourierFacts);
         final double[] yCalc = linOp.operate(Nd4j.create(x)).data().asDouble();
-        Assert.assertArrayEquals("", y, yCalc, 1e-6);
+        Assert.assertArrayEquals("", y, yCalc, 1e-8);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

@@ -1,5 +1,8 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
+
 /**
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
@@ -9,6 +12,7 @@ public final class TargetCoverageEMAlgorithmNd4j extends TargetCoverageEMAlgorit
     public TargetCoverageEMAlgorithmNd4j(final TargetCoverageEMParams params,
                                          final TargetCoverageEMWorkspaceNd4j ws) {
         super(params, ws);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
     }
 
     @Override

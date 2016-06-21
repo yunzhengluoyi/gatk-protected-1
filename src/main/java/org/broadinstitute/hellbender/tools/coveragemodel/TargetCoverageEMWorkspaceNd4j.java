@@ -7,7 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
 import org.broadinstitute.hellbender.tools.exome.ReadCountRecord;
-import org.broadinstitute.hellbender.utils.Utils;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -101,6 +102,7 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
     public TargetCoverageEMWorkspaceNd4j(final ReadCountCollection readCounts,
                                          final TargetCoverageEMParams params) {
         super(readCounts, params);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
 
         /* parse reads and initialize containers */
         final List<ReadCountRecord> recs = readCounts.records();
@@ -142,7 +144,7 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
         logger.debug("Setting model parameter containers to default values ...");
 
         /* TODO */
-        
+
     }
 
     /**

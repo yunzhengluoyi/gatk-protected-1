@@ -6,8 +6,11 @@ import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.FourierLinearOperator;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOperator;
+import org.broadinstitute.hellbender.utils.Utils;
 import org.broadinstitute.hellbender.utils.hdf5.HDF5File;
 import org.broadinstitute.hellbender.utils.param.ParamUtils;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -26,6 +29,8 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
     private final INDArray principalLinearMap;
 
     public TargetCoverageModelNd4j(final int numTargets, final int numLatents) {
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+
         this.numTargets = ParamUtils.isPositive(numTargets, "Number of targets must be positive.");
         this.numLatents = ParamUtils.inRange(numLatents, 1, numTargets, "Number of latent variables must be " +
                 ">= 1 and <= number of targets.");
@@ -103,6 +108,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     @Override
     public void setTargetMeanBias(final INDArray newTargetMeanBias) {
+        Utils.nonNull(newTargetMeanBias);
         if (newTargetMeanBias.length() != getNumTargets() || !newTargetMeanBias.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
@@ -111,6 +117,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     @Override
     public void setTargetUnexplainedVariance(final INDArray newTargetUnexplainedVariance) {
+        Utils.nonNull(newTargetUnexplainedVariance);
         if (newTargetUnexplainedVariance.length() != getNumTargets() || !newTargetUnexplainedVariance.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
@@ -119,6 +126,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     @Override
     public void setPrincipalLinearMapPerTarget(final int targetIndex, final INDArray newTargetPrincipalLinearMap) {
+        Utils.nonNull(newTargetPrincipalLinearMap);
         if (newTargetPrincipalLinearMap.length() != getNumLatents() || !newTargetPrincipalLinearMap.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
@@ -128,6 +136,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     @Override
     public void setPrincipalLinearMapPerLatent(final int latentIndex, final INDArray newLatentPrincipalLinearMap) {
+        Utils.nonNull(newLatentPrincipalLinearMap);
         if (newLatentPrincipalLinearMap.length() != getNumTargets() || !newLatentPrincipalLinearMap.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }

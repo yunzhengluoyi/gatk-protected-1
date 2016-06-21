@@ -1,9 +1,12 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
+import htsjdk.samtools.util.Log;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollectionUtils;
+import org.broadinstitute.hellbender.utils.LoggingUtils;
 import org.broadinstitute.hellbender.utils.test.BaseTest;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -22,10 +25,15 @@ public class TargetCoverageEMAlgorithmUnitTest extends BaseTest {
     private TargetCoverageEMWorkspace ws;
     private TargetCoverageEMAlgorithm algo;
 
+    @BeforeSuite @Override
+    public void setTestVerbosity(){
+        LoggingUtils.setLoggingLevel(Log.LogLevel.DEBUG);
+    }
+
     @BeforeClass
     void loadReadCounts() throws IOException {
         testReadCounts = ReadCountCollectionUtils.parse(TEST_RCC_FILE);
-        ws = new TargetCoverageEMWorkspaceNd4j(testReadCounts, params, true);
+        ws = new TargetCoverageEMWorkspaceNd4j(testReadCounts, params);
         algo = new TargetCoverageEMAlgorithmNd4j(params, (TargetCoverageEMWorkspaceNd4j) ws);
     }
 

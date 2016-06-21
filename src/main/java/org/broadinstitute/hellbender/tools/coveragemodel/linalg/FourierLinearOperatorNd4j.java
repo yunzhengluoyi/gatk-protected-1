@@ -2,6 +2,8 @@ package org.broadinstitute.hellbender.tools.coveragemodel.linalg;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.linear.RealLinearOperator;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -18,6 +20,7 @@ public final class FourierLinearOperatorNd4j extends FourierLinearOperator<INDAr
 
     public FourierLinearOperatorNd4j(final int dimension, final double[] fourierFactors) {
         super(dimension, fourierFactors);
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
     }
 
     /**
