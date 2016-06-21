@@ -24,27 +24,27 @@ public interface TargetCoverageEMCoreRoutines {
     /**
      * Update G for all samples
      */
-    void updateG();
+    SubroutineSignal updateG();
 
     /**
      * Update E[z] for all samples
      */
-    void updateZPosterior();
+    SubroutineSignal updateZPosterior();
 
     /**
      * Update E[z z^T] for all samples
      */
-    void updateZZPosterior();
+    SubroutineSignal updateZZPosterior();
 
     /**
      * M-step -- Update mean bias vector "m"
      */
-    void updateMeanBias();
+    SubroutineSignal updateMeanBias();
 
     /**
      * M-step -- Update B (auxiliary)
      */
-    void updateB();
+    SubroutineSignal updateB();
 
     /**
      * M-step -- Update Psi

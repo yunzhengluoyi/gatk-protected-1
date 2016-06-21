@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
 import org.broadinstitute.hellbender.tools.exome.ReadCountRecord;
+import org.broadinstitute.hellbender.utils.Utils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -136,8 +137,12 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
         sampleStatisticalVariances = Nd4j.create(sampleStatisticalVariancesArray2D);
         sampleGermlineCopyNumber = Nd4j.create(sampleGermlineCopyNumberArray2D);
 
-        /* initialize the model */
+        /* instantiate a model */
         model = new TargetCoverageModelNd4j(getNumTargets(), getTargetCoverageEMParams().getNumLatents());
+        logger.debug("Setting model parameter containers to default values ...");
+
+        /* TODO */
+        
     }
 
     /**

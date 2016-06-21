@@ -1,6 +1,8 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.utils.Utils;
 
 /**
@@ -12,8 +14,13 @@ import org.broadinstitute.hellbender.utils.Utils;
 
 public abstract class TargetCoverageEMAlgorithm implements TargetCoverageEMCoreRoutines {
 
+    private final Logger logger = LogManager.getLogger(TargetCoverageEMAlgorithm.class);
+
     protected final TargetCoverageEMParams params;
+
     protected final TargetCoverageEMWorkspace ws;
+
+    protected EMAlgorithmStatus status;
 
     public enum EMAlgorithmStatus {
         TBD(false, "Status is not determined yet."),
@@ -32,10 +39,15 @@ public abstract class TargetCoverageEMAlgorithm implements TargetCoverageEMCoreR
         }
     }
 
+    public EMAlgorithmStatus getStatus() { return status; }
+
     public TargetCoverageEMAlgorithm(final TargetCoverageEMParams params,
                                      final TargetCoverageEMWorkspace ws) {
         this.params = Utils.nonNull(params, "Target coverage EM algorithm parameters can not be null.");
         this.ws = Utils.nonNull(ws, "Target covarge EM workspace can not be null.");
+
+        this.status = EMAlgorithmStatus.TBD;
+        logger.info("EM algorithm initialized.");
     }
 
     @VisibleForTesting

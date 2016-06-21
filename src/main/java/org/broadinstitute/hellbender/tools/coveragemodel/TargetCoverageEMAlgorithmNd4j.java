@@ -1,7 +1,8 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
 /**
- * Created by mehrtash on 6/21/16.
+ *
+ * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 public final class TargetCoverageEMAlgorithmNd4j extends TargetCoverageEMAlgorithm {
 
@@ -11,38 +12,45 @@ public final class TargetCoverageEMAlgorithmNd4j extends TargetCoverageEMAlgorit
     }
 
     @Override
-    public void updateG() {
+    public SubroutineSignal updateG() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updateZPosterior() {
+    public SubroutineSignal updateZPosterior() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updateZZPosterior() {
+    public SubroutineSignal updateZZPosterior() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updateMeanBias() {
+    public SubroutineSignal updateMeanBias() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updateB() {
+    public SubroutineSignal updateB() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updatePsi() {
+    public SubroutineSignal updatePsi() {
         /* TODO */
+        return null;
     }
 
     @Override
-    public void updateW() {
+    public SubroutineSignal updateW() {
         /* TODO */
+        return null;
     }
 
     @Override

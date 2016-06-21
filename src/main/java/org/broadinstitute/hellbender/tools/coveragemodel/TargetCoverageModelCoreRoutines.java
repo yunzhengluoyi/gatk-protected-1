@@ -1,6 +1,7 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.FourierLinearOperator;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOperator;
 
@@ -33,10 +34,8 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
      * @param diag entries of the diagonal matrix
      * @return a matrix type
      * @throws UnsupportedOperationException
-     * @throws DimensionMismatchException
      */
-    default M wtdw(final V diag)
-            throws UnsupportedOperationException, DimensionMismatchException {
+    default M wtdw(final V diag) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -45,10 +44,8 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
      * @param fop the Fourier operator
      * @return a matrix type
      * @throws UnsupportedOperationException
-     * @throws DimensionMismatchException
      */
-    default M wtfw(final FourierLinearOperator<V> fop)
-            throws UnsupportedOperationException, DimensionMismatchException {
+    default M wtfw(final FourierLinearOperator<V> fop) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -57,10 +54,8 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
      * @param v a vector
      * @return
      * @throws UnsupportedOperationException
-     * @throws DimensionMismatchException
      */
-    default V wv(final V v)
-            throws UnsupportedOperationException, DimensionMismatchException {
+    default V wv(final V v) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -69,10 +64,8 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
      * @param v a vector
      * @return
      * @throws UnsupportedOperationException
-     * @throws DimensionMismatchException
      */
-    default V wtv(final V v)
-            throws UnsupportedOperationException, DimensionMismatchException {
+    default V wtv(final V v) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -81,16 +74,14 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
      * mutators *
      ************/
 
-    void setTargetMeanBias(final V newTargetMeanBias);
+    void setTargetMeanBias(final V newTargetMeanBias) throws UnsupportedOperationException;
 
     /**
      *
      * @param newTargetUnexplainedVariance
      * @throws UnsupportedOperationException
-     * @throws DimensionMismatchException
      */
-    default void setTargetUnexplainedVariance(final V newTargetUnexplainedVariance)
-            throws UnsupportedOperationException, DimensionMismatchException {
+    default void setTargetUnexplainedVariance(final V newTargetUnexplainedVariance) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
