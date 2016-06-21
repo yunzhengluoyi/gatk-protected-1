@@ -28,8 +28,8 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
     private final INDArray targetUnexplainedVariance;
     private final INDArray principalLinearMap;
 
-    public TargetCoverageModelNd4j(final int numTargets, final int numLatents) {
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+    public TargetCoverageModelNd4j(final int numTargets, final int numLatents, DataBuffer.Type dType) {
+        DataTypeUtil.setDTypeForContext(dType);
 
         this.numTargets = ParamUtils.isPositive(numTargets, "Number of targets must be positive.");
         this.numLatents = ParamUtils.inRange(numLatents, 1, numTargets, "Number of latent variables must be " +

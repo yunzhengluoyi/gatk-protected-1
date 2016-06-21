@@ -39,6 +39,8 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
      */
     private static final int DEFAULT_GERMLINE_COPY_NUMBER = 2;
 
+    private final DataBuffer.Type dType;
+
     /**********************
      * persistent members *
      **********************/
@@ -100,9 +102,11 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
      * @param readCounts a {@link ReadCountCollection} of the samples, not a {@code null}
      */
     public TargetCoverageEMWorkspaceNd4j(final ReadCountCollection readCounts,
-                                         final TargetCoverageEMParams params) {
+                                         final TargetCoverageEMParams params,
+                                         final DataBuffer.Type dType) {
         super(readCounts, params);
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        this.dType = dType;
+        DataTypeUtil.setDTypeForContext(dType);
 
         /* parse reads and initialize containers */
         final List<ReadCountRecord> recs = readCounts.records();
@@ -140,7 +144,7 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
         sampleGermlineCopyNumber = Nd4j.create(sampleGermlineCopyNumberArray2D);
 
         /* instantiate a model */
-        model = new TargetCoverageModelNd4j(getNumTargets(), getTargetCoverageEMParams().getNumLatents());
+        model = new TargetCoverageModelNd4j(getNumTargets(), getTargetCoverageEMParams().getNumLatents(), dType);
         logger.debug("Setting model parameter containers to default values ...");
 
         /* TODO */

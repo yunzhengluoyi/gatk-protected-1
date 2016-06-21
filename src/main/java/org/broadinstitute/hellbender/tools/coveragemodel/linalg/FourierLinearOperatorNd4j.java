@@ -18,9 +18,10 @@ import java.util.stream.IntStream;
 
 public final class FourierLinearOperatorNd4j extends FourierLinearOperator<INDArray> {
 
-    public FourierLinearOperatorNd4j(final int dimension, final double[] fourierFactors) {
+    public FourierLinearOperatorNd4j(final int dimension, final double[] fourierFactors,
+                                     final DataBuffer.Type dType) {
         super(dimension, fourierFactors);
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        DataTypeUtil.setDTypeForContext(dType);
     }
 
     /**

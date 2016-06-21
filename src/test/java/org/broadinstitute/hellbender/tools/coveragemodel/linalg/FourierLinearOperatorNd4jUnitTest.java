@@ -3,6 +3,7 @@ package org.broadinstitute.hellbender.tools.coveragemodel.linalg;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.broadinstitute.hellbender.utils.test.BaseTest;
 import org.junit.Assert;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.factory.Nd4j;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -54,7 +55,7 @@ public class FourierLinearOperatorNd4jUnitTest extends BaseTest {
      */
     @Test(dataProvider = "testData")
     public void performTest(final int dim, final double[] fourierFacts, final double[] x, final double[] y) {
-        FourierLinearOperatorNd4j linOp = new FourierLinearOperatorNd4j(dim, fourierFacts);
+        FourierLinearOperatorNd4j linOp = new FourierLinearOperatorNd4j(dim, fourierFacts, DataBuffer.Type.DOUBLE);
         final double[] yCalc = linOp.operate(Nd4j.create(x)).data().asDouble();
         Assert.assertArrayEquals("", y, yCalc, 1e-8);
     }
@@ -62,19 +63,19 @@ public class FourierLinearOperatorNd4jUnitTest extends BaseTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBadDimension_0() {
         /* negative dimensions not allowed */
-        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(-1, new double[5]);
+        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(-1, new double[5], DataBuffer.Type.DOUBLE);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBadDimension_1() {
         /* dimension >= 2 */
-        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(1, new double[5]);
+        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(1, new double[5], DataBuffer.Type.DOUBLE);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBadDimension_2() {
         /* fourierFactors.length = floor(dimension/2) + 1 */
-        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(15, new double[3]);
+        FourierLinearOperatorNd4j linop = new FourierLinearOperatorNd4j(15, new double[3], DataBuffer.Type.DOUBLE);
     }
 
 }

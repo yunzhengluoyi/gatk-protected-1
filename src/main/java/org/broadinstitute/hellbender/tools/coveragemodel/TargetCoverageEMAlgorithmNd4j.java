@@ -10,9 +10,10 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 public final class TargetCoverageEMAlgorithmNd4j extends TargetCoverageEMAlgorithm {
 
     public TargetCoverageEMAlgorithmNd4j(final TargetCoverageEMParams params,
-                                         final TargetCoverageEMWorkspaceNd4j ws) {
+                                         final TargetCoverageEMWorkspaceNd4j ws,
+                                         final DataBuffer.Type dType) {
         super(params, ws);
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        DataTypeUtil.setDTypeForContext(dType);
     }
 
     @Override
