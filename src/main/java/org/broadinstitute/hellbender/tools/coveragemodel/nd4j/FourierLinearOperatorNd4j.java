@@ -1,7 +1,8 @@
-package org.broadinstitute.hellbender.tools.coveragemodel.linalg;
+package org.broadinstitute.hellbender.tools.coveragemodel.nd4j;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.linear.RealLinearOperator;
+import org.broadinstitute.hellbender.tools.coveragemodel.linalg.FourierLinearOperator;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -12,6 +13,9 @@ import java.util.stream.IntStream;
 /**
  * A a subclass of {@link RealLinearOperator} that defines the action of a real circulant
  * matrix operator $F(x,x') = F(x-x')$ by providing the DFT components of $F(x)$
+ *
+ * We use JTransforms for performing FFT. It is the fastest FFT implementation in pure Java,
+ * but should also consider trying ND4j's native FFT backend.
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */

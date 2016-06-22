@@ -1,9 +1,10 @@
 package org.broadinstitute.hellbender.tools.coveragemodel.linalg;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
+import org.broadinstitute.hellbender.tools.coveragemodel.nd4j.FourierLinearOperatorNd4j;
 import org.broadinstitute.hellbender.utils.test.BaseTest;
 import org.junit.Assert;
 import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.factory.Nd4j;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -55,6 +56,7 @@ public class FourierLinearOperatorNd4jUnitTest extends BaseTest {
      */
     @Test(dataProvider = "testData")
     public void performTest(final int dim, final double[] fourierFacts, final double[] x, final double[] y) {
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         FourierLinearOperatorNd4j linOp = new FourierLinearOperatorNd4j(dim, fourierFacts, DataBuffer.Type.DOUBLE);
         final double[] yCalc = linOp.operate(Nd4j.create(x)).data().asDouble();
         Assert.assertArrayEquals("", y, yCalc, 1e-8);

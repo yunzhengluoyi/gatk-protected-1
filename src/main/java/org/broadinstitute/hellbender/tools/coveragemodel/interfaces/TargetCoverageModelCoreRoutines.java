@@ -1,4 +1,4 @@
-package org.broadinstitute.hellbender.tools.coveragemodel;
+package org.broadinstitute.hellbender.tools.coveragemodel.interfaces;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.broadinstitute.hellbender.exceptions.UserException;
@@ -15,22 +15,14 @@ import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOpe
 
 public interface TargetCoverageModelCoreRoutines<V, M> {
 
-    /************
-     * acessors *
-     ************/
-
-    V getTargetMeanBias();
-
-    V getTargetUnexplainedVariance();
-
-    GeneralLinearOperator<V> getPrincipalLinearMap();
-
     /**************
      * operations *
      **************/
 
     /**
      * Calculates [W]^T [D] [W] where [D] is a TxT diagonal matrix
+     * {@code diag} must be treated as immutable
+     *
      * @param diag entries of the diagonal matrix
      * @return a matrix type
      * @throws UnsupportedOperationException
@@ -51,6 +43,8 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
 
     /**
      * Computes [W] v
+     * {@code v} must be treated as immutable
+     *
      * @param v a vector
      * @return
      * @throws UnsupportedOperationException
@@ -61,49 +55,13 @@ public interface TargetCoverageModelCoreRoutines<V, M> {
 
     /**
      * Computes [W]^T v
+     * {@code v} must be treated as immutable
+     *
      * @param v a vector
      * @return
      * @throws UnsupportedOperationException
      */
     default V wtv(final V v) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-
-    /************
-     * mutators *
-     ************/
-
-    void setTargetMeanBias(final V newTargetMeanBias) throws UnsupportedOperationException;
-
-    /**
-     *
-     * @param newTargetUnexplainedVariance
-     * @throws UnsupportedOperationException
-     */
-    default void setTargetUnexplainedVariance(final V newTargetUnexplainedVariance) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     *
-     * @param targetIndex
-     * @param newTargetPrincipalLinearMap
-     * @throws UnsupportedOperationException
-     */
-    default void setPrincipalLinearMapPerTarget(final int targetIndex, final V newTargetPrincipalLinearMap)
-            throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     *
-     * @param latentIndex
-     * @param newLatentPrincipalLinearMap
-     * @throws UnsupportedOperationException
-     */
-    default void setPrincipalLinearMapPerLatent(final int latentIndex, final V newLatentPrincipalLinearMap)
-            throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 

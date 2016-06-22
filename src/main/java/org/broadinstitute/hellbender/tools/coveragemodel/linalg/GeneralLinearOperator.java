@@ -6,7 +6,7 @@ import org.apache.commons.math3.exception.DimensionMismatchException;
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 
-public abstract class GeneralLinearOperator<VT> {
+public abstract class GeneralLinearOperator<V> {
 
     /**
      * Returns the dimension of the codomain of this operator.
@@ -30,7 +30,7 @@ public abstract class GeneralLinearOperator<VT> {
      * @throws DimensionMismatchException if the column dimension does not match
      * the size of {@code x}
      */
-    public abstract VT operate(final VT x)
+    public abstract V operate(final V x)
             throws DimensionMismatchException;
 
     /**
@@ -47,15 +47,15 @@ public abstract class GeneralLinearOperator<VT> {
      * @throws UnsupportedOperationException if this operation is not supported
      * by {@code this} operator
      */
-    public VT operateTranspose(final VT x)
+    public V operateTranspose(final V x)
             throws DimensionMismatchException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Returns {@code true} if this operator supports
-     * {@link #operateTranspose(VT)}. If {@code true} is returned,
-     * {@link #operateTranspose(VT)} should not throw
+     * {@link #operateTranspose(V)}. If {@code true} is returned,
+     * {@link #operateTranspose(V)} should not throw
      * {@code UnsupportedOperationException}. The default implementation returns
      * {@code false}.
      *
@@ -72,7 +72,7 @@ public abstract class GeneralLinearOperator<VT> {
      * @throws DimensionMismatchException
      * @throws UnsupportedOperationException
      */
-    public void updateRow(final int rowIndex, final VT row)
+    public void updateRow(final int rowIndex, final V row)
             throws DimensionMismatchException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
@@ -84,7 +84,7 @@ public abstract class GeneralLinearOperator<VT> {
      * @throws DimensionMismatchException
      * @throws UnsupportedOperationException
      */
-    public void updateColumn(final int colIndex, final VT col)
+    public void updateColumn(final int colIndex, final V col)
             throws DimensionMismatchException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }

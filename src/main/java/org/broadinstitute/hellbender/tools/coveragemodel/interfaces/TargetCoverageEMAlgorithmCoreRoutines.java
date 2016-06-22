@@ -1,23 +1,27 @@
-package org.broadinstitute.hellbender.tools.coveragemodel;
+package org.broadinstitute.hellbender.tools.coveragemodel.interfaces;
 
 /**
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  * */
 
-public interface TargetCoverageEMCoreRoutines {
+public interface TargetCoverageEMAlgorithmCoreRoutines<V, M> {
 
     enum SubroutineStatus {
         SUCCESS, FAILURE
     }
 
     final class SubroutineSignal {
-        public final SubroutineStatus status;
-        public final String message;
 
-        SubroutineSignal(final SubroutineStatus status, final String message) {
+        /* SUCCESS or FAILURE */
+        public final SubroutineStatus status;
+
+        /* anything the subroutine wishes to communicate */
+        public final Object adios;
+
+        SubroutineSignal(final SubroutineStatus status, final Object adios) {
             this.status = status;
-            this.message = message;
+            this.adios = adios;
         }
     }
 

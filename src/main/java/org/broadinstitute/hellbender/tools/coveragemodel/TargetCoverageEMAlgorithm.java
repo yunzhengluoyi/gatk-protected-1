@@ -3,6 +3,7 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.broadinstitute.hellbender.tools.coveragemodel.interfaces.TargetCoverageEMAlgorithmCoreRoutines;
 import org.broadinstitute.hellbender.utils.Utils;
 
 /**
@@ -12,13 +13,13 @@ import org.broadinstitute.hellbender.utils.Utils;
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 
-public abstract class TargetCoverageEMAlgorithm implements TargetCoverageEMCoreRoutines {
+public abstract class TargetCoverageEMAlgorithm<V, M> implements TargetCoverageEMAlgorithmCoreRoutines<V, M> {
 
     private final Logger logger = LogManager.getLogger(TargetCoverageEMAlgorithm.class);
 
     protected final TargetCoverageEMParams params;
 
-    protected final TargetCoverageEMWorkspace ws;
+    protected final TargetCoverageEMWorkspace<V, M> ws;
 
     protected EMAlgorithmStatus status;
 
@@ -42,7 +43,7 @@ public abstract class TargetCoverageEMAlgorithm implements TargetCoverageEMCoreR
     public EMAlgorithmStatus getStatus() { return status; }
 
     public TargetCoverageEMAlgorithm(final TargetCoverageEMParams params,
-                                     final TargetCoverageEMWorkspace ws) {
+                                     final TargetCoverageEMWorkspace<V, M> ws) {
         this.params = Utils.nonNull(params, "Target coverage EM algorithm parameters can not be null.");
         this.ws = Utils.nonNull(ws, "Target covarge EM workspace can not be null.");
 

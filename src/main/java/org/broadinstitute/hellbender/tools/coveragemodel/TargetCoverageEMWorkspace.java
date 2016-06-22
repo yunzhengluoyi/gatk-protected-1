@@ -1,6 +1,8 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
+import org.broadinstitute.hellbender.tools.coveragemodel.interfaces.TargetCoverageEMWorkspaceCoreRoutines;
 import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
+import org.broadinstitute.hellbender.utils.param.ParamUtils;
 
 /**
  * This abstract class provides the basic workspace structure for {@link TargetCoverageEMAlgorithm},
@@ -9,7 +11,7 @@ import org.broadinstitute.hellbender.tools.exome.ReadCountCollection;
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
 
-public abstract class TargetCoverageEMWorkspace {
+public abstract class TargetCoverageEMWorkspace<V, M> implements TargetCoverageEMWorkspaceCoreRoutines<V, M> {
 
     protected final int numSamples, numTargets;
     protected final TargetCoverageEMParams params;
@@ -36,10 +38,24 @@ public abstract class TargetCoverageEMWorkspace {
         }
     }
 
+    protected void assertSampleIndex(final int sampleIndex) {
+        ParamUtils.inRange(sampleIndex, 0, numSamples - 1, "Sample index out of range");
+    }
+
+    protected void assertTargetIndex(final int targetIndex) {
+        ParamUtils.inRange(targetIndex, 0, numTargets - 1, "Target index out of range");
+    }
+
+    /************
+     * acessors *
+     ************/
+
     public int getNumSamples() { return numSamples; }
 
     public int getNumTargets() { return numTargets; }
 
     public TargetCoverageEMParams getTargetCoverageEMParams() { return params; }
+
+    public abstract TargetCoverageModel<V, M> getModel();
 
 }

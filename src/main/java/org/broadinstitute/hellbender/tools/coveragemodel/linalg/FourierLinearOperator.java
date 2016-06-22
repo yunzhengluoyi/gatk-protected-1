@@ -7,7 +7,7 @@ import org.jtransforms.fft.DoubleFFT_1D;
 /**
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
-public abstract class FourierLinearOperator<VT> extends GeneralLinearOperator<VT> {
+public abstract class FourierLinearOperator<V> extends GeneralLinearOperator<V> {
 
     protected final int dimension;
     protected final double[] fourierFactors;
@@ -45,7 +45,7 @@ public abstract class FourierLinearOperator<VT> extends GeneralLinearOperator<VT
     }
 
     @Override
-    public VT operateTranspose(final VT x)
+    public V operateTranspose(final V x)
             throws DimensionMismatchException, UnsupportedOperationException {
         return operate(x);
     }

@@ -1,9 +1,9 @@
-package org.broadinstitute.hellbender.tools.coveragemodel;
+package org.broadinstitute.hellbender.tools.coveragemodel.nd4j;
 
-import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.exceptions.UserException;
+import org.broadinstitute.hellbender.tools.coveragemodel.TargetCoverageModel;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.FourierLinearOperator;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOperator;
 import org.broadinstitute.hellbender.utils.Utils;
@@ -22,18 +22,12 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     private final Logger logger = LogManager.getLogger(TargetCoverageModelNd4j.class);
 
-    private final int numTargets, numLatents;
-
     private final INDArray targetMeanBias;
     private final INDArray targetUnexplainedVariance;
     private final INDArray principalLinearMap;
 
-    public TargetCoverageModelNd4j(final int numTargets, final int numLatents, DataBuffer.Type dType) {
-        DataTypeUtil.setDTypeForContext(dType);
-
-        this.numTargets = ParamUtils.isPositive(numTargets, "Number of targets must be positive.");
-        this.numLatents = ParamUtils.inRange(numLatents, 1, numTargets, "Number of latent variables must be " +
-                ">= 1 and <= number of targets.");
+    public TargetCoverageModelNd4j(final int numTargets, final int numLatents) {
+        super(numTargets, numLatents);
 
         /* create containers */
         logger.debug("Allocating memory for containers ...");
@@ -56,11 +50,11 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
 
     @Override
     public void initialize() {
-        /* nothing to do there */
+        /* nothing to do there at the moment -- consider removing */
     }
 
     /**
-     * Returns a clone since ND4j objects are mutable
+     * Note: returns a clone since ND4j objects are mutable
      * @return
      */
     @Override
@@ -69,7 +63,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
     }
 
     /**
-     * Returns a clone since ND4j objects are mutable
+     * Note: returns a clone since ND4j objects are mutable
      * @return
      */
     @Override
@@ -130,7 +124,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
         if (newTargetPrincipalLinearMap.length() != getNumLatents() || !newTargetPrincipalLinearMap.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
-        ParamUtils.inRange(targetIndex, 0, getNumTargets() - 1, "Target index out of range.");
+        assertTargetIndex(targetIndex);
         principalLinearMap.putRow(targetIndex, newTargetPrincipalLinearMap.dup());
     }
 
@@ -140,7 +134,7 @@ public final class TargetCoverageModelNd4j extends TargetCoverageModel<INDArray,
         if (newLatentPrincipalLinearMap.length() != getNumTargets() || !newLatentPrincipalLinearMap.isVector()) {
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
-        ParamUtils.inRange(latentIndex, 0, getNumLatents() - 1, "Latent index out of range.");
+        assertLatentIndex(latentIndex);
         principalLinearMap.putColumn(latentIndex, newLatentPrincipalLinearMap.dup());
     }
 
