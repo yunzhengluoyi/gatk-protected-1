@@ -2,27 +2,29 @@ package org.broadinstitute.hellbender.tools.coveragemodel;
 
 import org.broadinstitute.hellbender.tools.coveragemodel.interfaces.TargetCoverageModelCoreRoutines;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOperator;
+import org.broadinstitute.hellbender.utils.Utils;
 import org.broadinstitute.hellbender.utils.hdf5.HDF5File;
 import org.broadinstitute.hellbender.utils.param.ParamUtils;
 
 /**
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
-public abstract class TargetCoverageModel<V, M> implements TargetCoverageModelCoreRoutines<V, M> {
+public abstract class TargetCoverageModelBlock<V, M> implements TargetCoverageModelCoreRoutines<V, M> {
 
-    protected final int numTargets, numLatents;
+    protected final int numLatents;
+    protected final TargetSpaceBlock targetBlock;
 
-    protected TargetCoverageModel(final int numTargets, final int numLatents) {
-        this.numTargets = ParamUtils.isPositive(numTargets, "Number of targets must be positive.");
-        this.numLatents = ParamUtils.inRange(numLatents, 1, numTargets, "Number of latent variables must be " +
-                ">= 1 and <= number of targets.");
+    protected TargetCoverageModelBlock(final TargetSpaceBlock targetBlock, final int numLatents) {
+        this.targetBlock = Utils.nonNull(targetBlock, "Target space block can not be null.");
+        this.numLatents = ParamUtils.isPositive(numLatents, "Number of latent variables must be " +
+                "positive.");
     }
 
     /**
-     * Get the dimension of the target space
-     * @return dimension of target space
+     * Get the target space block
+     * @return the target space block
      */
-    public abstract int getNumTargets();
+    public TargetSpaceBlock getTargetSpaceBlock() { return targetBlock; };
 
     /**
      * Get the dimension of the latent space
@@ -30,19 +32,8 @@ public abstract class TargetCoverageModel<V, M> implements TargetCoverageModelCo
      */
     public abstract int getNumLatents();
 
-    /**
-     * Save model to file
-     * @param output output HDF5 file
-     */
-    public abstract void saveToFile(final HDF5File output);
-
-    /**
-     * Initialize model parameters
-     */
-    public abstract void initialize();
-
     protected void assertTargetIndex(final int targetIndex) {
-        ParamUtils.inRange(targetIndex, 0, numTargets - 1, "Target index out of range");
+        ParamUtils.inRange(targetIndex, targetBlock.getBegIndex(), targetBlock.getEndIndex() - 1, "Target index out of range");
     }
 
     protected void assertLatentIndex(final int latentIndex) {

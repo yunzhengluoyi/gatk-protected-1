@@ -1,9 +1,7 @@
 package org.broadinstitute.hellbender.tools.coveragemodel;
 
-import org.apache.http.util.Asserts;
-import org.broadinstitute.hellbender.tools.coveragemodel.nd4j.TargetCoverageEMWorkspaceUtilsNd4j;
+import org.broadinstitute.hellbender.tools.coveragemodel.nd4j.TargetCoverageEMWorkspaceNd4jUtils;
 import org.broadinstitute.hellbender.utils.test.BaseTest;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.junit.Assert;
 import org.testng.annotations.Test;
@@ -15,16 +13,16 @@ import java.util.stream.IntStream;
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
-public class TargetCoverageEMWorkspaceUtilsNd4jUnitTest extends BaseTest {
+public class TargetCoverageEMWorkspaceNd4JUtilsUnitTest extends BaseTest {
 
     @Test
     public void testEstimateMeanReadDepth_0() {
-        Assert.assertEquals(TargetCoverageEMWorkspaceUtilsNd4j.estimateMeanReadDepth(
+        Assert.assertEquals(org.broadinstitute.hellbender.tools.coveragemodel.nd4j.TargetCoverageEMWorkspaceNd4jUtils.estimateMeanReadDepth(
                 Nd4j.create(new double[]{1, 2, 3, 4}),
                 Nd4j.create(new double[]{1, 1, 1, 1}),
                 Nd4j.create(new double[]{1, 1, 1, 1})),
                 2.0, 1e-8);
-        Assert.assertEquals(TargetCoverageEMWorkspaceUtilsNd4j.estimateMeanReadDepth(
+        Assert.assertEquals(TargetCoverageEMWorkspaceNd4jUtils.estimateMeanReadDepth(
                 Nd4j.create(new double[]{1, 2, 3, 4}),
                 Nd4j.create(new double[]{1, 1, 1, 1}),
                 Nd4j.create(new double[]{1, 0, 1, 0})),
@@ -37,7 +35,7 @@ public class TargetCoverageEMWorkspaceUtilsNd4jUnitTest extends BaseTest {
         double[] readCount = IntStream.range(0, dataLength).mapToDouble(n -> 1000.0).toArray();
         double[] multBias = IntStream.range(0, dataLength).mapToDouble(n -> 2.0).toArray();
         double[] mask = IntStream.range(0, dataLength).mapToDouble(n -> 1.0).toArray();
-        double res = TargetCoverageEMWorkspaceUtilsNd4j.estimateMeanReadDepth(Nd4j.create(readCount),
+        double res = org.broadinstitute.hellbender.tools.coveragemodel.nd4j.TargetCoverageEMWorkspaceNd4jUtils.estimateMeanReadDepth(Nd4j.create(readCount),
                 Nd4j.create(multBias), Nd4j.create(mask));
         Assert.assertEquals(res, 499.75, 1e-8);
     }

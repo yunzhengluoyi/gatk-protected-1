@@ -10,7 +10,7 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
  */
-public class TargetCoverageEMWorkspaceUtilsNd4j {
+public class TargetCoverageEMWorkspaceNd4jUtils {
 
     /**
      * Maximum likelihood estimator of the mean read depth for given read counts and total multiplicative bias

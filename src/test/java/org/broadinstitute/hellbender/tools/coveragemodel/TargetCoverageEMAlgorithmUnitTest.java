@@ -38,7 +38,7 @@ public class TargetCoverageEMAlgorithmUnitTest extends BaseTest {
     void loadReadCounts() throws IOException {
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
         testReadCounts = ReadCountCollectionUtils.parse(TEST_RCC_FILE);
-        ws = new TargetCoverageEMWorkspaceNd4j(testReadCounts, params);
+        ws = new TargetCoverageEMWorkspaceNd4j(testReadCounts, params, 5);
         algo = new TargetCoverageEMAlgorithmNd4j(params, (TargetCoverageEMWorkspaceNd4j) ws);
     }
 

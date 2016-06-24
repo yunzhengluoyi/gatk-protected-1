@@ -56,6 +56,6 @@ public abstract class TargetCoverageEMWorkspace<V, M> implements TargetCoverageE
 
     public TargetCoverageEMParams getTargetCoverageEMParams() { return params; }
 
-    public abstract TargetCoverageModel<V, M> getModel();
+//    public abstract TargetCoverageModelBlock<V, M> getModel();
 
 }

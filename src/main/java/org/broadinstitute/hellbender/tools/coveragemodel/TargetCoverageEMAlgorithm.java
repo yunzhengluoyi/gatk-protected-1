@@ -7,7 +7,7 @@ import org.broadinstitute.hellbender.tools.coveragemodel.interfaces.TargetCovera
 import org.broadinstitute.hellbender.utils.Utils;
 
 /**
- * Implementation of the maximum likelihood estimator of {@link TargetCoverageModel} parameters
+ * Implementation of the maximum likelihood estimator of {@link TargetCoverageModelBlock} parameters
  * via the EM algorithm (see CNV-methods.pdf for technical details).
  *
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
