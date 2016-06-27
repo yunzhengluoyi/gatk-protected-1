@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.special.Gamma;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.tools.exome.ModeledSegment;
 import org.broadinstitute.hellbender.tools.exome.allelefraction.AlleleFractionInitializer;
 import org.broadinstitute.hellbender.tools.exome.allelefraction.AllelicBiasParameters;
@@ -22,6 +24,8 @@ import java.util.stream.IntStream;
  * @author David Benjamin &lt;davidben@broadinstitute.org&gt;
  */
 public abstract class ClusteringGenomicHMMSegmenter<T> {
+    private final Logger logger = LogManager.getLogger(ClusteringGenomicHMM.class);
+
     private double concentration;
     protected double[] weights; //one per hidden state
     protected double[] hiddenStateValues;
@@ -120,6 +124,11 @@ public abstract class ClusteringGenomicHMMSegmenter<T> {
         int iteration = 0;
         boolean converged = false;
         while (!converged && iteration < MAX_EM_ITERATIONS) {
+            logger.info(String.format("Begginning iteration %d of learning.", iteration));
+            logger.info(String.format("Current values of hidden states: %s.", Arrays.toString(hiddenStateValues)));
+            logger.info(String.format("Current weights of hidden states: %s.", Arrays.toString(weights)));
+            logger.info(String.format("Current memory length: %d bases.", memoryLength));
+
             final double oldMemoryLength = memoryLength;
             final double[] oldWeights = weights.clone();
             final double[] oldHiddenStateValues = hiddenStateValues.clone();
@@ -134,12 +143,20 @@ public abstract class ClusteringGenomicHMMSegmenter<T> {
 
     // update the model and the concentration parameter with a single EM step
     private void performEMIteration() {
+        logger.info("Performing E step via the forward-backward algorithm.");
         final ExpectationStep expectationStep = new ExpectationStep();
+        logger.info("Performing M step optimizations of parameters.");
+        logger.info("Relearning hidden state values.");
         relearnHiddenStateValues(expectationStep);
+        logger.info("Relearning hidden state weights.");
         relearnWeights(expectationStep);
+        logger.info("Relearning memory length.");
         relearnMemoryLength(expectationStep);
+        logger.info("Relearning additional parameters.");
         relearnAdditionalParameters(expectationStep);
+        logger.info("Attempting to reduce the number of hidden states used.");
         pruneUnusedComponents();
+        logger.info("Relearning concentration hyperparameter.");
         relearnConcentration();
     }
 
