@@ -124,10 +124,10 @@ public abstract class ClusteringGenomicHMMSegmenter<T> {
         int iteration = 0;
         boolean converged = false;
         while (!converged && iteration < MAX_EM_ITERATIONS) {
-            logger.info(String.format("Begginning iteration %d of learning.", iteration));
+            logger.info(String.format("Beginning iteration %d of learning.", iteration));
             logger.info(String.format("Current values of hidden states: %s.", Arrays.toString(hiddenStateValues)));
             logger.info(String.format("Current weights of hidden states: %s.", Arrays.toString(weights)));
-            logger.info(String.format("Current memory length: %d bases.", memoryLength));
+            logger.info(String.format("Current memory length: %f bases.", memoryLength));
 
             final double oldMemoryLength = memoryLength;
             final double[] oldWeights = weights.clone();
