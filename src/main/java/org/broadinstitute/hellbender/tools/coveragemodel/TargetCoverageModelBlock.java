@@ -5,6 +5,7 @@ import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOpe
 import org.broadinstitute.hellbender.utils.Utils;
 import org.broadinstitute.hellbender.utils.hdf5.HDF5File;
 import org.broadinstitute.hellbender.utils.param.ParamUtils;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
  * @author Mehrtash Babadi &lt;mehrtash@broadinstitute.org&gt;
@@ -21,11 +22,12 @@ public abstract class TargetCoverageModelBlock<V, M> implements TargetCoverageMo
     }
 
     /**
-     * Get the target space block
-     * @return the target space block
+     * Get a copy of the target space block
+     * @return
      */
-    public TargetSpaceBlock getTargetSpaceBlock() { return targetBlock; };
-
+    public TargetSpaceBlock getTargetSpaceBlock() {
+        return new TargetSpaceBlock(targetBlock.getBegIndex(), targetBlock.getEndIndex());
+    }
     /**
      * Get the dimension of the latent space
      * @return dimension of the latent space
@@ -60,7 +62,7 @@ public abstract class TargetCoverageModelBlock<V, M> implements TargetCoverageMo
      * Get an immutable copy or clone of the principal linear map
      * @return an immutable copy or clone of the principal linear map
      */
-    public abstract GeneralLinearOperator<V> getPrincipalLinearMap();
+    public abstract M getPrincipalLinearMap();
 
     /************
      * mutators *
@@ -104,6 +106,17 @@ public abstract class TargetCoverageModelBlock<V, M> implements TargetCoverageMo
      * @throws UnsupportedOperationException
      */
     public void setPrincipalLinearMapPerLatent(final int latentIndex, final V newLatentPrincipalLinearMap)
+            throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Note: must clone the input
+     *
+     * @param newPrincipalLinearMap
+     * @throws UnsupportedOperationException
+     */
+    public void setPrincipalLinearMap(final M newPrincipalLinearMap)
             throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }

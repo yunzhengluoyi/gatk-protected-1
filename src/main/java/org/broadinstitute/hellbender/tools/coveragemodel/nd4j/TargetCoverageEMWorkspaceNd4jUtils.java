@@ -1,9 +1,13 @@
 package org.broadinstitute.hellbender.tools.coveragemodel.nd4j;
 
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.utils.Utils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Log;
+import org.nd4j.linalg.checkutil.CheckUtil;
+import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 /**
@@ -37,4 +41,12 @@ public class TargetCoverageEMWorkspaceNd4jUtils {
         return num/denom;
     }
 
+    public static INDArray invertNDMatrix(final INDArray mat) {
+        if (!mat.isSquare()) {
+            throw new IllegalArgumentException("invalid array: must be square matrix");
+        }
+        RealMatrix rm = CheckUtil.convertToApacheMatrix(mat);
+        RealMatrix rmInverse = new LUDecomposition(rm).getSolver().getInverse();
+        return CheckUtil.convertFromApacheMatrix(rmInverse);
+    }
 }

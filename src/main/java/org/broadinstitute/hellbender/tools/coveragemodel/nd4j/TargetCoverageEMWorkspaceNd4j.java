@@ -15,8 +15,8 @@ import org.broadinstitute.hellbender.utils.param.ParamUtils;
 import org.junit.Assert;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -38,7 +38,7 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
      * Targets with zero read counts will be promoted to the follolwing in {@code sampleLogReadCounts} and
      * {@code sampleStatsticalVariances}
      * */
-    private static final int READ_COUNT_ON_MISSING_TARGETS_FIXUP_VALUE = 1;
+    private static final int READ_COUNT_ON_UNCOVERED_TARGETS_FIXUP_VALUE = 1;
 
     /**
      * In the absence of target copy number data, the following value will be used on all targets
@@ -67,28 +67,6 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
 
     private final int numTargetBlocks;
 
-    /**********************
-     * persistent members *
-     **********************/
-
-    /* $n_{st}$ */
-    private INDArray sampleReadCounts;
-
-    /* $log(n_{st})$ */
-    private INDArray sampleLogReadCounts;
-
-    /* P_{st} */
-    private INDArray sampleGermlineCopyNumber;
-
-    /* M_{st} */
-    private INDArray sampleMasks;
-
-    /* \sum_s M_{st} */
-    private INDArray sampleSummedMasks;
-
-    /* $\Sigma$ */
-    private INDArray sampleStatisticalVariances;
-
     /***********************
      * distributed members *
      ***********************/
@@ -98,7 +76,8 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
     private List<TargetSpaceBlock> targetBlocks;
     private Map<TargetSpaceBlock, TargetCoverageModelBlockNd4J> modelBlocksMap;
     private Map<TargetSpaceBlock, TargetCoverageEMCacheBlockNd4j> cacheBlocksMap;
-    private Map<TargetSpaceBlock, Pair<TargetCoverageModelBlockNd4J, TargetCoverageEMCacheBlockNd4j>> pairedMap;
+    private Map<TargetSpaceBlock, Pair<TargetCoverageModelBlockNd4J,
+            TargetCoverageEMCacheBlockNd4j>> pairMap;
 
     /*************************
      * small mutable members *
@@ -154,20 +133,14 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
         cacheBlocksMap = new HashMap<>();
         targetBlockStream().forEach(tb -> cacheBlocksMap.put(tb,
                 new TargetCoverageEMCacheBlockNd4j(tb, numSamples)));
-        pairedMap = new HashMap<>();
-        targetBlockStream().forEach(tb -> pairedMap.put(tb,
+        pairMap = new HashMap<>();
+        targetBlockStream().forEach(tb -> pairMap.put(tb,
                 new ImmutablePair<>(modelBlocksMap.get(tb), cacheBlocksMap.get(tb))));
     }
 
     private void initializePersistentMembers(final ReadCountCollection readCounts) {
         /* parse reads and initialize containers */
         final List<ReadCountRecord> recs = readCounts.records();
-
-        sampleReadCounts = Nd4j.create(numSamples, numTargets);
-        sampleMasks = Nd4j.create(numSamples, numTargets);
-        sampleLogReadCounts = Nd4j.create(numSamples, numTargets);
-        sampleStatisticalVariances = Nd4j.create(numSamples, numTargets);
-        sampleGermlineCopyNumber = Nd4j.create(numSamples, numTargets);
 
         targetBlockStream().forEach(tb -> {
             /* take a contiguous (target chuck) x numSamples chunk from the read count collection */
@@ -182,26 +155,24 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
             /* derived blocks */
             double[] maskBlock = Arrays.stream(rawReadCountBlock).map(n -> (int)n > 0 ? 1 : 0).toArray();
             double[] fixedReadCountBlock = Arrays.stream(rawReadCountBlock)
-                    .map(n -> (int)n > 0 ? n : READ_COUNT_ON_MISSING_TARGETS_FIXUP_VALUE).toArray();
+                    .map(n -> (int)n > 0 ? n : READ_COUNT_ON_UNCOVERED_TARGETS_FIXUP_VALUE).toArray();
             double[] logReadCountBlock = Arrays.stream(fixedReadCountBlock).map(FastMath::log).toArray();
             double[] statisticalVarianceBlock = Arrays.stream(fixedReadCountBlock).map(n -> 1.0/n).toArray();
             double[] germlineCopyNumberBlock =  IntStream.range(0, rawReadCountBlock.length)
                     .mapToDouble(it -> DEFAULT_GERMLINE_COPY_NUMBER).toArray();
 
-            INDArrayIndex[] blockIndex = new INDArrayIndex[2];
-            blockIndex[0] = NDArrayIndex.interval(0, numSamples);
-            blockIndex[1] = NDArrayIndex.interval(tb.getBegIndex(), tb.getEndIndex());
-
-            /* populate persistent members */
-            sampleReadCounts.get(blockIndex).assign(Nd4j.create(
+            /** populate persistent members
+             * note: for arrays shaped like S X T, the read buffer must be mapped in Fortran order
+             */
+            cacheBlocksMap.get(tb).sampleReadCounts.assign(Nd4j.create(
                     rawReadCountBlock, new int[]{numSamples, tb.getNumTargets()}, 'f'));
-            sampleMasks.get(blockIndex).assign(Nd4j.create(
+            cacheBlocksMap.get(tb).sampleMasks.assign(Nd4j.create(
                     maskBlock, new int[]{numSamples, tb.getNumTargets()}, 'f'));
-            sampleLogReadCounts.get(blockIndex).assign(Nd4j.create(
+            cacheBlocksMap.get(tb).sampleLogReadCounts.assign(Nd4j.create(
                     logReadCountBlock, new int[]{numSamples, tb.getNumTargets()}, 'f'));
-            sampleStatisticalVariances.get(blockIndex).assign(Nd4j.create(
+            cacheBlocksMap.get(tb).sampleStatisticalVariances.assign(Nd4j.create(
                     statisticalVarianceBlock, new int[]{numSamples, tb.getNumTargets()}, 'f'));
-            sampleGermlineCopyNumber.get(blockIndex).assign(Nd4j.create(
+            cacheBlocksMap.get(tb).sampleGermlineCopyNumber.assign(Nd4j.create(
                     germlineCopyNumberBlock, new int[]{numSamples, tb.getNumTargets()}, 'f'));
         });
 
@@ -212,66 +183,147 @@ public final class TargetCoverageEMWorkspaceNd4j extends TargetCoverageEMWorkspa
         logger.warn("Sample-target masks are inferred from read counts. In the future, it must be inferred from the" +
                 " provided germline copy number.");
 
-        sampleSummedMasks = sampleMasks.sum(0);
+        cacheBlocksMap.values().stream().forEach(cache -> cache.sampleSummedMasks.assign(cache.sampleMasks.sum(0)));
     }
 
     /**
      * Initializes mutable members to their initial values
      */
     private void initializeMutableMembers() {
-//        logger.debug("Initializing model parameters and EM workspace members");
-//
-//        /* set $c_{st} <- 1$ on all targets */
-//        sampleCopyRatios = Nd4j.ones(numSamples, numTargets);
-//
-//        /* estimate sample mean read depths assuming $e^{b_st} = 1$ and $c_{st} = 1$ */
-//        sampleMeanReadDepths = Nd4j.create(sampleIndexStream().mapToDouble(si -> estimateMeanReadDepth(
-//                sampleReadCounts.getRow(si), sampleGermlineCopyNumber.getRow(si), sampleMasks.getRow(si))).toArray(),
-//                new int[]{numSamples, 1});
-//
-//        /* TODO take care of NaNs -- the latest ND4j on master has a replaceNaN according to raver119 */
-//        /* $m_{st} <- log(n_{st}/(P_{st} d_s))$ */
-//        sampleBiases = Transforms.log(sampleReadCounts.div(
-//                sampleGermlineCopyNumber.mulColumnVector(sampleMeanReadDepths)), false);
-//
-//        /**
-//         *  set the model parameters to sensible initial values -- initially, there are all zero
-//         *  we set W to a truncated identity, leave Psi as zero, and set the target bias to the sample averaged
-//         *  bias assuming no CNV events
-//         *  */
-//
-//        /* $W_{tm}$ */
-//        IntStream.range(0, model.getNumLatents()).forEach(ti ->
-//                model.setPrincipalLinearMapPerTarget(ti, Nd4j.zeros(model.getNumLatents()).putScalar(ti, 1.0)));
-//
-//        /* $m_t$ */
-//        model.setTargetMeanBias(sampleBiases.mul(sampleMasks).sum(0).divi(sampleSummedMasks));
+        logger.debug("Initializing model parameters and EM workspace members");
+        initializeSampleCopyRatios();
+        initializeSampleReadDepths();
+        initializeSampleBiases();
+        initializeModelParameters();
+        updateCaches();
+        initializePosteriors();
     }
 
-//    @Override
-//    public INDArray getSampleCopyRatio(final int sampleIndex) {
-//        assertSampleIndex(sampleIndex);
-//        return sampleCopyRatios.getRow(sampleIndex).dup();
-//    }
-//
-//    @Override
-//    public void setSampleCopyRatio(final int sampleIndex, final INDArray newSampleCopyRatio) {
-//        assertSampleIndex(sampleIndex);
-//        sampleCopyRatios.putRow(sampleIndex, newSampleCopyRatio.dup());
-//    }
-
-    @Override
-    public double estimateMeanReadDepth(final INDArray readCount, final INDArray totalMultBias,
-                                        final INDArray mask) {
-        return org.broadinstitute.hellbender.tools.coveragemodel.nd4j.TargetCoverageEMWorkspaceNd4jUtils.estimateMeanReadDepth(readCount, totalMultBias, mask);
+    /**
+     * set $c_{st} <- 1$ on all targets in all cache blocks
+     */
+    private void initializeSampleCopyRatios() {
+        cacheBlocksMap.values().stream().forEach(cb -> cb.setCopyRatiosToConstant(1.0));
     }
 
-//    @Override
-//    public TargetCoverageModelBlock<INDArray, INDArray> getModel() { return model; }
+    /**
+     * Estimate sample mean read depths assuming $e^{b_st} = 1$ and $c_{st} = 1$, such that the total
+     * multiplicative bias is the germline copy number
+     */
+    private void initializeSampleReadDepths() {
+        INDArray num = cacheBlocksMap.values().stream()
+                .map(TargetCoverageEMCacheBlockNd4j::getSampleReadDepthEstimatorNumeratorInitial)
+                .reduce(Nd4j.zeros(numSamples, 1), INDArray::addi);
+        INDArray denom = cacheBlocksMap.values().stream()
+                .map(TargetCoverageEMCacheBlockNd4j::getSampleReadDepthEstimatorDenominatorInitial)
+                .reduce(Nd4j.zeros(numSamples, 1), INDArray::addi);
+        sampleMeanReadDepths = num.div(denom);
+    }
+
+    /**
+     * $m_{st} <- log(n_{st}/(P_{st} d_s))$
+     *
+     * TODO take care of NaNs -- the latest ND4j on master has a replaceNaN according to raver119
+     */
+    private void initializeSampleBiases() {
+        cacheBlocksMap.values().stream().forEach(cache ->
+            cache.sampleBiases.assign(Transforms.log(cache.sampleReadCounts.div(
+                    cache.sampleGermlineCopyNumber.mulColumnVector(sampleMeanReadDepths)), false)));
+    }
+
+    /**
+     *  Set the model parameters to sensible initial values -- initially, there are all zero
+     *  we set W to a truncated identity, leave Psi as zero, and set the target bias to the sample averaged
+     *  bias assuming no CNV events
+     */
+    private void initializeModelParameters() {
+        /* set $W_{tm}$ to a zero-padded D X D identity matrix, and $m_t$ to mask averaged $m_{st}$ */
+        targetBlockStream().forEach(tb -> {
+            TargetCoverageEMCacheBlockNd4j cache = cacheBlocksMap.get(tb);
+            TargetCoverageModelBlockNd4J model = modelBlocksMap.get(tb);
+            /* $W_{tm}$ */
+            if (tb.getBegIndex() < params.getNumLatents()) {
+                IntStream.range(tb.getBegIndex(), FastMath.min(tb.getEndIndex(), params.getNumLatents())).forEach(ti ->
+                    model.setPrincipalLinearMapPerTarget(ti, Nd4j.zeros(1, params.getNumLatents()).putScalar(0, ti, 1.0)));
+            }
+            /* $m_t$ */
+            model.setTargetMeanBias(cache.sampleBiases.mul(cache.sampleMasks).sum(0).div(cache.sampleSummedMasks));
+            /* nothing to do for $\Psi_t$ */
+        });
+    }
+
+    /**
+     * Update caches that derive from $\Psi_t$
+     */
+    private void updateCaches() {
+        pairMap.values().stream().forEach(p -> p.getRight().updateCaches(p.getLeft()));
+    }
+
+    /**
+     * Set posterior expectation values to zero
+     */
+    private void initializePosteriors() {
+        sampleLatentPosteriorFirstMoments = Nd4j.zeros(numSamples, params.getNumLatents());
+        sampleLatentPosteriorSecondMoments = Nd4j.zeros(numSamples, params.getNumLatents(), params.getNumLatents());
+    }
+
+    /**
+     * Calculate the G matrix of a given sample
+     * Note: it is assumed that the variance caches are up to date
+     *
+     * [G]_s = ([I] + [W]^T [diag(M_st \Psi_st)] [W])^{-1}
+     *
+     * @return List of G matrices
+     */
+    private INDArray calculateSampleGMatrix(final int sampleIndex) {
+        return TargetCoverageEMWorkspaceNd4jUtils.invertNDMatrix(pairMap.values().stream()
+                .map(p -> p.getLeft().wtdw(p.getRight().sampleMaskedInverseTotalVariances.getRow(sampleIndex)))
+                .reduce(Nd4j.eye(params.getNumLatents()), INDArray::addi));
+    }
+
+    /**
+     * Get numpy-style slices {@code E[z[sampleIndex, :]]} and {@code E[z[sampleIndex, :] z[sampleIndex, :]^T]}
+     * @param sampleIndex
+     * @return
+     */
+    private ImmutablePair<INDArray, INDArray> getLatentPosteriorSlice(final int sampleIndex) {
+        return ImmutablePair.of(sampleLatentPosteriorFirstMoments.getRow(sampleIndex),
+                    sampleLatentPosteriorSecondMoments.get(NDArrayIndex.point(sampleIndex), NDArrayIndex.all(), NDArrayIndex.all()));
+    }
+
+    /**
+     * Update the first and second posterior moments of the bias latent variable for sample {@code sampleIndex}
+     * @param sampleIndex index of the sample to process
+     */
+    private void updateLatentPosteriorExpectationsSingle(final int sampleIndex) {
+        /* calculate G_s */
+        INDArray sampleGMatrix = calculateSampleGMatrix(sampleIndex);
+
+        /* get the slice of posterior expectation containers corresponding to the sample */
+        ImmutablePair<INDArray, INDArray> latentPosteriorSlice = getLatentPosteriorSlice(sampleIndex);
+
+        /* E[z_s] = G_s W^T M_{st} \Psi_{st}^{-1} (m_{st} - m_t) */
+        latentPosteriorSlice.getLeft().assign(
+                sampleGMatrix.mmul(pairMap.values().stream()
+                        .map(p -> p.getLeft().wtv(
+                                p.getRight().sampleMaskedInverseTotalVariances.getRow(sampleIndex)
+                                        .mul(p.getRight().sampleBiasDeviations.getRow(sampleIndex))))
+                        .reduce(Nd4j.zeros(params.getNumLatents(), 1), INDArray::addi)));
+
+        /* E[z_s z_s^T] = G_s + E[z_s] E[z_s^T] */
+        latentPosteriorSlice.getRight().assign(sampleGMatrix.add(
+                latentPosteriorSlice.getLeft().transpose().mmul(latentPosteriorSlice.getLeft())));
+    }
+
+    /**
+     * Update posterior moments for all samples
+     */
+    public void updateLatentPosteriorExpectationsAll() {
+        sampleIndexStream().forEach(this::updateLatentPosteriorExpectationsSingle);
+    }
 
     public IntStream sampleIndexStream() { return IntStream.range(0, numSamples); }
 
     public Stream<TargetSpaceBlock> targetBlockStream() { return targetBlocks.stream(); }
-
 
 }

@@ -2,9 +2,12 @@ package org.broadinstitute.hellbender.tools.coveragemodel.nd4j;
 
 import org.broadinstitute.hellbender.tools.coveragemodel.TargetCoverageEMAlgorithm;
 import org.broadinstitute.hellbender.tools.coveragemodel.TargetCoverageEMParams;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -12,27 +15,19 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 public final class TargetCoverageEMAlgorithmNd4j extends TargetCoverageEMAlgorithm<INDArray, INDArray> {
 
-    public TargetCoverageEMAlgorithmNd4j(final TargetCoverageEMParams params,
-                                         final TargetCoverageEMWorkspaceNd4j ws) {
-        super(params, ws);
+    final TargetCoverageEMWorkspaceNd4j ws;
+
+    public TargetCoverageEMAlgorithmNd4j(@Nonnull final TargetCoverageEMParams params,
+                                         @Nonnull final TargetCoverageEMWorkspaceNd4j ws) {
+        super(params);
+        this.ws = ws;
+        updateLatentPosteriorExpectations();
     }
 
     @Override
-    public SubroutineSignal updateG() {
-        /* TODO */
-        return null;
-    }
-
-    @Override
-    public SubroutineSignal updateZPosterior() {
-        /* TODO */
-        return null;
-    }
-
-    @Override
-    public SubroutineSignal updateZZPosterior() {
-        /* TODO */
-        return null;
+    public SubroutineSignal updateLatentPosteriorExpectations() {
+        ws.updateLatentPosteriorExpectationsAll();
+        return new SubroutineSignal(SubroutineStatus.SUCCESS, null);
     }
 
     @Override

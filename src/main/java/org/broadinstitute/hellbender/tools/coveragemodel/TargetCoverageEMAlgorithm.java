@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.broadinstitute.hellbender.tools.coveragemodel.interfaces.TargetCoverageEMAlgorithmCoreRoutines;
 import org.broadinstitute.hellbender.utils.Utils;
 
+import javax.annotation.Nonnull;
+
 /**
  * Implementation of the maximum likelihood estimator of {@link TargetCoverageModelBlock} parameters
  * via the EM algorithm (see CNV-methods.pdf for technical details).
@@ -18,8 +20,6 @@ public abstract class TargetCoverageEMAlgorithm<V, M> implements TargetCoverageE
     private final Logger logger = LogManager.getLogger(TargetCoverageEMAlgorithm.class);
 
     protected final TargetCoverageEMParams params;
-
-    protected final TargetCoverageEMWorkspace<V, M> ws;
 
     protected EMAlgorithmStatus status;
 
@@ -42,23 +42,11 @@ public abstract class TargetCoverageEMAlgorithm<V, M> implements TargetCoverageE
 
     public EMAlgorithmStatus getStatus() { return status; }
 
-    public TargetCoverageEMAlgorithm(final TargetCoverageEMParams params,
-                                     final TargetCoverageEMWorkspace<V, M> ws) {
+    public TargetCoverageEMAlgorithm(@Nonnull final TargetCoverageEMParams params) {
         this.params = Utils.nonNull(params, "Target coverage EM algorithm parameters can not be null.");
-        this.ws = Utils.nonNull(ws, "Target covarge EM workspace can not be null.");
 
         this.status = EMAlgorithmStatus.TBD;
         logger.info("EM algorithm initialized.");
-    }
-
-    @VisibleForTesting
-    public void performEStep() {
-
-    }
-
-    @VisibleForTesting
-    public void performMStep() {
-
     }
 
 }

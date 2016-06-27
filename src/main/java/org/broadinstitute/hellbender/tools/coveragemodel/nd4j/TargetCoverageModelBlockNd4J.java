@@ -6,10 +6,13 @@ import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.coveragemodel.TargetCoverageModelBlock;
 import org.broadinstitute.hellbender.tools.coveragemodel.TargetSpaceBlock;
 import org.broadinstitute.hellbender.tools.coveragemodel.linalg.FourierLinearOperator;
-import org.broadinstitute.hellbender.tools.coveragemodel.linalg.GeneralLinearOperator;
 import org.broadinstitute.hellbender.utils.Utils;
+import org.junit.internal.ArrayComparisonFailure;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.junit.Assert;
+
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -22,6 +25,7 @@ public final class TargetCoverageModelBlockNd4J extends TargetCoverageModelBlock
     private final INDArray targetMeanBias;
     private final INDArray targetUnexplainedVariance;
     private final INDArray principalLinearMap;
+
 
     public TargetCoverageModelBlockNd4J(final TargetSpaceBlock targetBlock, final int numLatents) {
         super(targetBlock, numLatents);
@@ -52,32 +56,32 @@ public final class TargetCoverageModelBlockNd4J extends TargetCoverageModelBlock
     }
 
     @Override
-    public GeneralLinearOperator<INDArray> getPrincipalLinearMap() {
+    public INDArray getPrincipalLinearMap() {
+        return principalLinearMap.dup();
+    }
+
+    @Override
+    public INDArray wtdw(@Nonnull final INDArray diag) {
+        Assert.assertEquals(diag.length(), getTargetSpaceBlock().getNumTargets());
+        return principalLinearMap.transpose().mmul(principalLinearMap.mulColumnVector(
+                diag.reshape(getTargetSpaceBlock().getNumTargets(), 1)));
+    }
+
+    @Override
+    public INDArray wtfw(@Nonnull final FourierLinearOperator<INDArray> fop) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public INDArray wtdw(final INDArray diag) {
-        /* TODO */
-        return null;
-    }
-
-    @Override
-    public INDArray wtfw(final FourierLinearOperator<INDArray> fop) {
-        /* TODO */
-        return null;
-    }
-
-    @Override
-    public INDArray wv(final INDArray v) {
-        /* TODO */
-        return null;
+    public INDArray wv(@Nonnull final INDArray v) {
+        Assert.assertEquals(v.length(), numLatents);
+        return principalLinearMap.mmul(v.reshape(numLatents, 1));
     }
 
     @Override
     public INDArray wtv(final INDArray v) {
-        /* TODO */
-        return null;
+        Assert.assertEquals(v.length(), getTargetSpaceBlock().getNumTargets());
+        return principalLinearMap.transpose().mmul(v.reshape(getTargetSpaceBlock().getNumTargets(), 1));
     }
 
     @Override
@@ -105,7 +109,7 @@ public final class TargetCoverageModelBlockNd4J extends TargetCoverageModelBlock
             throw new UserException("Either the provited INDArray is not a vector or has the wrong size.");
         }
         assertTargetIndex(targetIndex);
-        principalLinearMap.putRow(targetIndex, newTargetPrincipalLinearMap.dup());
+        principalLinearMap.putRow(targetIndex - targetBlock.getBegIndex(), newTargetPrincipalLinearMap.dup());
     }
 
     @Override
@@ -116,6 +120,16 @@ public final class TargetCoverageModelBlockNd4J extends TargetCoverageModelBlock
         }
         assertLatentIndex(latentIndex);
         principalLinearMap.putColumn(latentIndex, newLatentPrincipalLinearMap.dup());
+    }
+
+    @Override
+    public void setPrincipalLinearMap(final INDArray newPrincipalLinearMap) {
+        try {
+            Assert.assertArrayEquals(principalLinearMap.shape(), newPrincipalLinearMap.shape());
+        } catch (ArrayComparisonFailure e) {
+            throw new UserException("The shape of the provided principal linear map is not compatible with the model.");
+        }
+        principalLinearMap.assign(newPrincipalLinearMap);
     }
 
     @Override
