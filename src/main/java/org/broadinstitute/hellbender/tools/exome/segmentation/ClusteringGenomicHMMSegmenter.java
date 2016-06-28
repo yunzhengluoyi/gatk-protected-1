@@ -39,7 +39,7 @@ public abstract class ClusteringGenomicHMMSegmenter<T> {
     protected final List<SimpleInterval> positions;
     private final double[] distances;   //distances[n] is the n to n+1 distance
 
-    protected static double NEGLIGIBLE_POSTERIOR_FOR_M_STEP = 0.01;
+    protected static double NEGLIGIBLE_POSTERIOR_FOR_M_STEP = 0.001;
 
     //private static final Logger logger = LogManager.getLogger(AlleleFractionSegmenter.class);
     private static final double MINIMUM_MEMORY_LENGTH = 1;
@@ -123,7 +123,7 @@ public abstract class ClusteringGenomicHMMSegmenter<T> {
     protected void learn() {
         int iteration = 0;
         boolean converged = false;
-        while (!converged && iteration < MAX_EM_ITERATIONS) {
+        while (!converged && iteration++ < MAX_EM_ITERATIONS) {
             logger.info(String.format("Beginning iteration %d of learning.", iteration));
             logger.info(String.format("Current values of hidden states: %s.", Arrays.toString(hiddenStateValues)));
             logger.info(String.format("Current weights of hidden states: %s.", Arrays.toString(weights)));
